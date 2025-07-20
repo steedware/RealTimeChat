@@ -132,7 +132,7 @@ Projekt utworzony w celach edukacyjnych.
 
 ## 👨‍💻 Autor
 
-Stworzony jako przykład aplikacji Real-Time Chat w Spring Boot.
+```steedware```
 
 ---
 
