@@ -26,7 +26,7 @@ Aplikacja komunikatora w czasie rzeczywistym zbudowana z użyciem Spring Boot, W
 ## Uruchomienie
 
 ```bash
-git clone https://github.com/twoj-username/RealTimeChat.git
+git clone https://github.com/steedware/RealTimeChat.git
 cd RealTimeChat
 mvn spring-boot:run
 ```
