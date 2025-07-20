@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .chat-box { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px; margin: 10px 0; }
+        .message { margin: 5px 0; padding: 5px; border-radius: 5px; }
+        .my-message { background-color: #dcf8c6; text-align: right; }
+        .other-message { background-color: #f1f1f1; }
+        input, button { padding: 5px; margin: 5px; }
+        .auth-section, .chat-section { margin: 20px 0; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Chat App</h1>
+
+        <div id="authSection" class="auth-section">
+            <h3>Login</h3>
+            <input type="text" id="loginUsername" placeholder="Username">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()">Login</button>
+
+            <h3>Register</h3>
+            <input type="text" id="regUsername" placeholder="Username">
+            <input type="password" id="regPassword" placeholder="Password">
+            <input type="email" id="regEmail" placeholder="Email">
+            <button onclick="register()">Register</button>
+        </div>
+
+        <div id="chatSection" class="chat-section hidden">
+            <h3>Chat</h3>
+            <div>Logged in as: <span id="currentUser"></span></div>
+            <div id="chatBox" class="chat-box"></div>
+            <input type="text" id="recipientUsername" placeholder="Recipient username">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let token = null;
+        let currentUsername = null;
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    token = data.token;
+                    currentUsername = data.username;
+                    document.getElementById('currentUser').textContent = currentUsername;
+                    document.getElementById('authSection').classList.add('hidden');
+                    document.getElementById('chatSection').classList.remove('hidden');
+                    connectWebSocket();
+                } else {
+                    alert('Login failed: ' + data.error);
+                }
+            })
+            .catch(error => alert('Login error: ' + error));
+        }
+
+        function register() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('Registration successful! Please login.');
+                } else {
+                    alert('Registration failed: ' + data.error);
+                }
+            })
+            .catch(error => alert('Registration error: ' + error));
+        }
+
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+
+                stompClient.subscribe('/user/queue/messages', function(message) {
+                    const messageData = JSON.parse(message.body);
+                    displayMessage(messageData);
+                });
+            });
+        }
+
+        function sendMessage() {
+            const recipientUsername = document.getElementById('recipientUsername').value;
+            const content = document.getElementById('messageInput').value;
+
+            if (recipientUsername && content) {
+                stompClient.send('/app/sendMessage', {}, JSON.stringify({
+                    receiverUsername: recipientUsername,
+                    content: content
+                }));
+
+                document.getElementById('messageInput').value = '';
+            }
+        }
+
+        function displayMessage(message) {
+            const chatBox = document.getElementById('chatBox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = message.senderUsername === currentUsername ? 'message my-message' : 'message other-message';
+            messageDiv.innerHTML = `<strong>${message.senderUsername}:</strong> ${message.content} <small>(${new Date(message.timestamp).toLocaleTimeString()})</small>`;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function logout() {
+            if (stompClient) {
+                stompClient.disconnect();
+            }
+            token = null;
+            currentUsername = null;
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('chatSection').classList.add('hidden');
+            document.getElementById('chatBox').innerHTML = '';
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
