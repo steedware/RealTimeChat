@@ -1,29 +1,29 @@
 # Real-Time Chat Application
 
-Aplikacja komunikatora w czasie rzeczywistym zbudowana z użyciem Spring Boot, WebSocket i JWT.
+A real-time chat application built with Spring Boot, WebSocket, and JWT.
 
-## Funkcje
+## Features
 
-- Rejestracja i logowanie użytkowników z hashowaniem haseł (BCrypt)  
-- Uwierzytelnianie i autoryzacja za pomocą JWT  
-- Komunikacja w czasie rzeczywistym przez WebSocket (STOMP)  
-- Prywatne wiadomości między użytkownikami  
-- Historia konwersacji i oznaczanie wiadomości jako przeczytane  
-- Prosty frontend HTML/JavaScript  
-- Wbudowana baza danych H2 z konsolą webową
+- User registration and login with password hashing (BCrypt)  
+- Authentication and authorization using JWT  
+- Real-time communication via WebSocket (STOMP)  
+- Private messaging between users  
+- Conversation history and marking messages as read  
+- Simple frontend with HTML/JavaScript  
+- Built-in H2 database with web console
 
-## Technologie
+## Technologies
 
-- Backend: Spring Boot 3.2, Spring Security, WebSocket, Spring Data JPA  
-- Frontend: HTML5, JavaScript, SockJS, STOMP.js  
-- Baza danych: H2 (w pamięci)
+- **Backend**: Spring Boot 3.2, Spring Security, WebSocket, Spring Data JPA  
+- **Frontend**: HTML5, JavaScript, SockJS, STOMP.js  
+- **Database**: H2 (in-memory)
 
-## Wymagania
+## Requirements
 
-- Java 21 lub nowsza  
-- Maven 3.6 lub nowszy
+- Java 21 or newer  
+- Maven 3.6 or newer
 
-## Uruchomienie
+## Getting Started
 
 ```bash
 git clone https://github.com/steedware/RealTimeChat.git
@@ -31,38 +31,38 @@ cd RealTimeChat
 mvn spring-boot:run
 ```
 
-Aplikacja dostępna pod adresem: `http://localhost:8080`
+App will be available at: `http://localhost:8080`
 
-## API
+## API Endpoints
 
-### Autoryzacja
+### Authentication
 
-- `POST /api/auth/register` – rejestracja  
-- `POST /api/auth/login` – logowanie
+- `POST /api/auth/register` – Register a new user  
+- `POST /api/auth/login` – Log in
 
-### Wiadomości
+### Messages
 
-- `POST /api/messages/send` – wysyłanie wiadomości  
-- `GET /api/messages/conversation/{username}` – historia konwersacji  
-- `GET /api/messages/unread` – nieprzeczytane wiadomości  
-- `PUT /api/messages/read/{messageId}` – oznaczenie jako przeczytane
+- `POST /api/messages/send` – Send a message  
+- `GET /api/messages/conversation/{username}` – Get conversation history  
+- `GET /api/messages/unread` – Get unread messages  
+- `PUT /api/messages/read/{messageId}` – Mark message as read
 
 ### WebSocket
 
-- Endpoint: `/ws`  
-- Wysyłanie: `/app/sendMessage`  
-- Odbiór: `/user/queue/messages`
+- WebSocket Endpoint: `/ws`  
+- Send message to: `/app/sendMessage`  
+- Receive messages from: `/user/queue/messages`
 
-## Baza danych
+## Database Access
 
-- Konsola H2: `http://localhost:8080/h2-console`  
+- H2 Console: `http://localhost:8080/h2-console`  
 - JDBC URL: `jdbc:h2:mem:testdb`  
 - Username: `sa`  
 - Password: `password`
 
-## Konfiguracja
+## Configuration
 
-Główne ustawienia w `src/main/resources/application.properties`:
+Main settings in `src/main/resources/application.properties`:
 
 ```properties
 server.port=8080
@@ -70,21 +70,21 @@ spring.datasource.url=jdbc:h2:mem:testdb
 spring.h2.console.enabled=true
 ```
 
-## Struktura projektu
+## Project Structure
 
 ```
 src/main/java/org/example/
-├── config/         - konfiguracje JWT, WebSocket, Security
-├── controller/     - REST API i WebSocket
-├── dto/            - obiekty transferowe
-├── model/          - encje JPA (User, Message)
-├── repository/     - interfejsy Spring Data
-├── service/        - logika biznesowa
-└── Main.java       - klasa uruchamiająca aplikację
+├── config/         - JWT, WebSocket, and Security configuration
+├── controller/     - REST API and WebSocket endpoints
+├── dto/            - Data Transfer Objects
+├── model/          - JPA entities (User, Message)
+├── repository/     - Spring Data interfaces
+├── service/        - Business logic
+└── Main.java       - Application entry point
 ```
 
-## Licencja
+## License
 
-Projekt przeznaczony do celów edukacyjnych.  
+This project is intended for educational purposes.
 
-Autor: `steedware`
+Author: `steedware`
